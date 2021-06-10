@@ -10,3 +10,4 @@ Shareable copies of (some) of my notes and studies.
 **JavaScript Basics (2019):**
 - Syntax and feature reviews to update myself on the language and new ES6 bits
 - mostly comments and outputs to a console.
+- (was also used to live demo scripting languages to my classmates.)
