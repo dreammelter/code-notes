@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spawn Points?</title>
+
+    <style>
+        #box {
+            width: 500px;
+            height: 500px;
+            padding: 0;
+            background-color: skyblue;
+            margin: auto;
+            /* force a new stacking context */
+            contain: content;
+        }
+        .point {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border-radius: 100px;
+            background-color: pink;
+        }
+        .point:hover {
+            background-color: blueviolet;
+        }
+        /* #box:hover {
+            border: 1px solid pink;
+        } */
+    </style>
+</head>
+<body>
+    <div>
+        <p>Move the mouse inside the blue box to see position / coordinates. Click to leave a point or something.</p>
+        <p id="log">
+            Screen X/Y: ... <br>
+            Client X/Y: ... <br>
+            Offset X/Y: ... <br>
+        </p>
+        <div id="box"></div>
+    </div>
+</body>
+<script>
+    let screenLog = document.getElementById('log');
+    let testBox = document.getElementById('box');
+    testBox.addEventListener('mousemove', screenLogMove); //bubble
+    testBox.addEventListener('click', spawnPoint);
+    // capture vs bubble??? https://www.quirksmode.org/js/events_order.html#link4
+
+    function screenLogMove(e) {
+        screenLog.innerText = 
+        `   Screen X/Y: ${e.screenX}, ${e.screenY}
+            Client X/Y: ${e.x}, ${e.y}
+            Offset X/Y: ${e.offsetX}, ${e.offsetY}
+        `;
+    }
+
+    function spawnPoint(e) { //based on the "custom tooltip approach"
+        // verify the target is the box first
+        if (e.target !== testBox) {
+            console.log("Clicked something other than blue box:",e.target);
+            return;
+        }
+        //only make a point if we're w/n bounds
+        if (e.offsetX < testBox.offsetWidth && e.offsetY < testBox.offsetHeight) {
+            console.log('Offset X / Y: ', e.offsetX, e.offsetY);
+            
+            // points use absolute positioning
+            point = document.createElement('div');
+            point.addEventListener('click',pointClicked); //bubble
+            point.classList.add('point');
+            point.name = `${e.offsetX}pt${e.offsetY}`
+            point.style.top = (e.offsetY - 8) + 'px'; //take off 8 for the existing w/h (~half of what's specified)
+            point.style.left = (e.offsetX - 8) + 'px';
+            testBox.appendChild(point);
+        }
+    }
+
+    function pointClicked(e) {
+        e.stopPropagation(); //stops it from triggering the spawnPoint method as it bubbles up
+        let point = e.target;
+        console.log('Point clicked:',point.name);
+        testBox.removeChild(point);
+    }
+</script>
+</html>
